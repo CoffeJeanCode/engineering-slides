@@ -304,32 +304,52 @@
       </div>
 
       <div class="formula-modal-body">
-        <div class="formula-row">
-          <p class="formula-label">Fórmula general</p>
-          <div id="formulaGeneral" class="formula-tex"></div>
-          <div class="formula-legend">
-            <span><b>N</b> = número de pelotas</span>
-            <span><b>L × A × H</b> = volumen de la habitación (m³)</span>
-            <span><b>f</b> = factor de empaquetamiento (~0.60–0.64)</span>
-            <span><b>⁴⁄₃ π r³</b> = volumen de una esfera</span>
-          </div>
-        </div>
+        <div class="formula-columns">
+          <div class="formula-col-formulas">
+            <div class="formula-row">
+              <p class="formula-label">Fórmula general</p>
+              <div id="formulaGeneral" class="formula-tex"></div>
+            </div>
 
-        <div class="formula-row formula-highlight">
-          <p class="formula-label">Fórmula rápida — pelotas de 4 cm, f = 60%</p>
-          <div id="formulaRapida" class="formula-tex"></div>
-          <div class="formula-legend">
-            <span>Solo multiplica las dimensiones en metros por <b>18 000</b></span>
-          </div>
-        </div>
+            <div class="formula-row formula-highlight">
+              <p class="formula-label">Fórmula rápida — pelotas de 4 cm, f = 60%</p>
+              <div id="formulaRapida" class="formula-tex"></div>
+            </div>
 
-        <div class="formula-row formula-example">
-          <p class="formula-label">Ejemplo aplicado — habitación 8 m × 6 m × 3 m</p>
-          <div id="formulaExample" class="formula-tex"></div>
-          <div class="formula-result">
-            <span class="formula-result-label">Resultado</span>
-            <span id="formulaResultNum" class="formula-result-number">2 592 000</span>
-            <span class="formula-result-unit">pelotas</span>
+            <div class="formula-row formula-example">
+              <p class="formula-label">Ejemplo aplicado — habitación 8 m × 6 m × 3 m</p>
+              <div id="formulaExample" class="formula-tex"></div>
+              <div class="formula-result">
+                <span class="formula-result-label">Resultado</span>
+                <span id="formulaResultNum" class="formula-result-number">2 592 000</span>
+                <span class="formula-result-unit">pelotas</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="formula-col-variables">
+            <p class="formula-label">Variables</p>
+            <div class="formula-var-list">
+              <div class="formula-var-item">
+                <span class="formula-var-symbol">N</span>
+                <span class="formula-var-desc">número de pelotas</span>
+              </div>
+              <div class="formula-var-item">
+                <span class="formula-var-symbol">L × A × H</span>
+                <span class="formula-var-desc">volumen de la habitación (m³)</span>
+              </div>
+              <div class="formula-var-item">
+                <span class="formula-var-symbol">f</span>
+                <span class="formula-var-desc">factor de empaquetamiento (~0.60–0.64)</span>
+              </div>
+              <div class="formula-var-item">
+                <span class="formula-var-symbol">⁴⁄₃ π r³</span>
+                <span class="formula-var-desc">volumen de una esfera</span>
+              </div>
+            </div>
+            <div class="formula-tip">
+              Solo multiplica las dimensiones en metros por <b>18 000</b>
+            </div>
           </div>
         </div>
       </div>

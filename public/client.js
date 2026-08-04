@@ -26,12 +26,14 @@ const VIEW_FOR_SLIDE = {
   10: 'quiz',
 };
 const DEFAULT_VIEW = 'standby';
-const VIEW_INDEX = { standby: 0, estimate: 1, tribunal: 2, heur: 3, gertie: 4, quiz: 5 };
+const VIEW_INDEX = { register: 0, standby: 1, estimate: 2, tribunal: 3, heur: 4, gertie: 5, quiz: 6 };
+
+let isRegistered = false;
+let myView = 'register';
 
 /* ¿Diapositivas de contenido? El cliente se queda en espera. */
 const CONTENT_SLIDES = [0, 1, 3, 5, 7, 9, 11];
 
-let myView = DEFAULT_VIEW;
 let answered = {};       // vista bloqueada (form oculto -> check verde)
 let quizAnsweredIndex = -1;
 let lastQuizRevealed = -1;
@@ -99,6 +101,27 @@ function onViewEnter(name) {
   }
   showForm(name);
 }
+
+/* ------------------------------------------------------------- */
+/*  Registro Inicial                                              */
+/* ------------------------------------------------------------- */
+
+const nicknameInput = document.getElementById('nicknameInput');
+const registerBtn = document.getElementById('registerBtn');
+
+function submitRegistration() {
+  const nick = nicknameInput.value.trim();
+  if (!nick) return;
+  
+  // Dar feedback visual inmediato ocultando el formulario
+  showSent('register');
+  socket.emit('REGISTER_PLAYER', { nickname: nick });
+}
+
+registerBtn.addEventListener('click', submitRegistration);
+nicknameInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') submitRegistration();
+});
 
 /* ------------------------------------------------------------- */
 /*  Juego 1 — Reto Ping-Pong                                      */
@@ -228,7 +251,8 @@ function render(s) {
   const prevSlide = state ? state.slide : -1;
   state = s;
 
-  const nextView = VIEW_FOR_SLIDE[s.slide] || DEFAULT_VIEW;
+  // Forzar vista de registro si aún no está registrado
+  let nextView = isRegistered ? (VIEW_FOR_SLIDE[s.slide] || DEFAULT_VIEW) : 'register';
 
   // Cambio de diapositiva -> nueva vista (desbloquea si el presentador avanzó)
   if (s.slide !== prevSlide) {
@@ -266,4 +290,24 @@ socket.on('disconnect', () => {
 socket.on('connect_error', () => {
   document.getElementById('connText').textContent = 'Sin conexión';
   document.querySelector('#connStatus span').className = 'w-2 h-2 rounded-full bg-red-400';
+});
+
+/* Gamificación: HUD Updates */
+socket.on('PLAYER_READY', (playerData) => {
+  document.getElementById('hud-name').innerText = `🤖 ${playerData.nickname}`;
+  document.getElementById('hud-score').innerText = `⭐ ${playerData.score} pts`;
+  document.getElementById('player-hud').style.display = 'flex';
+  
+  isRegistered = true;
+  // Esperar un poco para que el usuario lea el mensaje de éxito antes de cambiar la vista
+  setTimeout(() => {
+    if (state) render(state);
+  }, 1500);
+});
+
+socket.on('MY_SCORE_UPDATE', (newScore) => {
+  const scoreEl = document.getElementById('hud-score');
+  scoreEl.innerText = `⭐ ${newScore} pts`;
+  scoreEl.classList.add('pop-animation'); 
+  setTimeout(() => scoreEl.classList.remove('pop-animation'), 500);
 });

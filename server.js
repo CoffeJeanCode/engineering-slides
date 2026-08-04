@@ -84,6 +84,7 @@ const state = {
 };
 
 const clients = new Set();
+const players = {}; // Nuevo: para puntajes
 let estimateTimer = null;
 
 /* ================================================================== */
@@ -199,9 +200,20 @@ io.on('connection', (socket) => {
   socket.emit('STATE', snapshot());
   broadcast(); // actualiza el contador de usuarios del presentador
 
+  socket.on('REGISTER_PLAYER', ({ nickname }) => {
+    players[socket.id] = { 
+      nickname: (nickname || "Eng_" + socket.id.slice(0,4)).substring(0,15), 
+      score: 0 
+    };
+    socket.emit('PLAYER_READY', players[socket.id]);
+    io.emit('SCORE_UPDATE', Object.values(players));
+  });
+
   socket.on('disconnect', () => {
     clients.delete(socket.id);
+    delete players[socket.id];
     broadcast();
+    io.emit('SCORE_UPDATE', Object.values(players));
   });
 
   /* Juego 1 — Reto Ping-Pong */
@@ -210,6 +222,14 @@ io.on('connection', (socket) => {
     const n = Number(value);
     if (Number.isFinite(n) && n >= 0 && n <= MAX_ESTIMATE) {
       state.data.estimates.push(Math.round(n));
+      
+      // Lógica de puntaje
+      if (players[socket.id]) {
+        players[socket.id].score += 100;
+        socket.emit('MY_SCORE_UPDATE', players[socket.id].score);
+        io.emit('SCORE_UPDATE', Object.values(players));
+      }
+      
       broadcast();
     }
   });
@@ -221,6 +241,12 @@ io.on('connection', (socket) => {
     if (v === 'culpable') state.data.culpable += 1;
     else if (v === 'inocente') state.data.inocente += 1;
     else return;
+    
+    if (players[socket.id]) {
+      players[socket.id].score += 100;
+      socket.emit('MY_SCORE_UPDATE', players[socket.id].score);
+      io.emit('SCORE_UPDATE', Object.values(players));
+    }
     broadcast();
   });
 
@@ -233,6 +259,12 @@ io.on('connection', (socket) => {
     else return;
     state.data.heurWinner =
       state.data.heurA > state.data.heurB ? 'A' : state.data.heurB > state.data.heurA ? 'B' : null;
+      
+    if (players[socket.id]) {
+      players[socket.id].score += 100;
+      socket.emit('MY_SCORE_UPDATE', players[socket.id].score);
+      io.emit('SCORE_UPDATE', Object.values(players));
+    }
     broadcast();
   });
 
@@ -242,6 +274,12 @@ io.on('connection', (socket) => {
     const clean = String(word || '').trim().toLowerCase().slice(0, 15);
     if (!clean || /\s/.test(clean)) return;
     state.data.words.push(clean);
+    
+    if (players[socket.id]) {
+      players[socket.id].score += 200;
+      socket.emit('MY_SCORE_UPDATE', players[socket.id].score);
+      io.emit('SCORE_UPDATE', Object.values(players));
+    }
     broadcast();
   });
 
@@ -253,6 +291,13 @@ io.on('connection', (socket) => {
     if (Number.isInteger(q) && q >= 0 && q < QUIZ.length && ['A', 'B', 'C'].includes(option)) {
       if (q === state.data.revealedQuiz) {
         state.data.quizAnswers.push({ q, option });
+        
+        if (players[socket.id]) {
+          players[socket.id].score += (QUIZ[q].answer === option) ? 150 : 50;
+          socket.emit('MY_SCORE_UPDATE', players[socket.id].score);
+          io.emit('SCORE_UPDATE', Object.values(players));
+        }
+        
         broadcast();
       }
     }
