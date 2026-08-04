@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>El Método de la Ingeniería — Presentador</title>
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <!-- Libs -->
+  <script src="vendor/gsap.min.js"></script>
+  <script src="vendor/qrcode.min.js"></script>
+
+  <!-- Socket.io -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="ambient-glow"></div>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="flex items-center gap-3 font-black tracking-tight z-10">
+      <span style="color:var(--c-accent-ochre);">◆</span>
+      <span class="hidden sm:inline text-xs tracking-widest uppercase text-[var(--c-text-sub)]">El Método</span>
+    </div>
+
+    <div class="flex-1 text-center text-xs font-bold text-[var(--c-text-mute)] z-10">
+      <span id="slideNum" style="color:var(--c-text-main);">0</span>
+      <span class="mx-2">/</span><span id="slideTotal">11</span>
+      <span id="slideLabel" class="ml-4 hidden md:inline tracking-widest uppercase">Inicio</span>
+    </div>
+
+    <div class="flex items-center gap-2 z-10">
+      <span class="user-pill"><span class="pulse-dot"></span><span id="userCount">0</span></span>
+      <button id="resetBtn" class="tb-btn hidden sm:inline-block" title="Reiniciar">↺</button>
+      <button id="prevBtn" class="tb-btn">‹</button>
+      <button id="nextBtn" class="tb-btn tb-btn-primary">›</button>
+    </div>
+  </header>
+
+  <main id="presentation-container">
+
+    <!-- 0: Cover -->
+    <section class="slide layout-cover" data-slide="0" data-type="content">
+      <div class="layout-grid">
+        <div class="content">
+          <div class="anim-item kicker"><span class="t-meta">Introducción</span></div>
+          <h1 class="t-hero anim-item">El Método<br>de la Ingeniería</h1>
+          <p class="t-editorial anim-item mt-4 text-[var(--c-text-sub)]">
+            Tomando decisiones bajo incertidumbre<br>
+            <span class="handwritten-highlight mt-2">B.V. Koen</span>
+          </p>
+        </div>
+        <div class="graphic anim-item">
+          <p class="t-meta mb-4">Conéctate</p>
+          <div id="qrcode" class="mb-4 bg-white p-2 w-max"></div>
+          <p id="joinUrl" class="t-meta text-[var(--c-accent-ochre)]"></p>
+          <div class="mt-8">
+            <p class="t-meta mb-2">Audiencia en vivo</p>
+            <p id="userCountBig" class="t-data">0</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1: Statement -->
+    <section class="slide layout-statement" data-slide="1" data-type="content">
+      <div class="layout-grid">
+        <div class="content">
+          <div class="anim-item kicker"><span class="t-meta">Definición</span></div>
+          <h2 class="t-editorial anim-item text-[var(--c-text-sub)] mb-8">Más allá de la Ciencia</h2>
+          <div class="anim-item t-title">
+            La ciencia busca verdades inmutables.<br>
+            La ingeniería convive con contradicciones y busca la <span class="text-[var(--c-accent-ochre)]">solución óptima sujeta a recursos limitados.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2: Ping Pong (Game + Split) -->
+    <section class="slide layout-split" data-slide="2" data-type="game" data-game="estimate">
+      <div class="layout-grid">
+        <div class="layout-split-narrative">
+          <div class="anim-item kicker kicker-game"><span class="t-meta">Interacción 01</span></div>
+          <h2 class="t-title anim-item mb-6">Reto Ping-Pong</h2>
+          <p class="t-editorial anim-item text-[var(--c-text-sub)]">
+            Tienen 50 segundos. ¿Cuántas pelotas de ping-pong caben en esta habitación?
+          </p>
+          <div class="anim-item flex gap-8 mt-12">
+            <div>
+              <p class="t-meta mb-2">Tiempo</p>
+              <p id="timerNum" class="t-data text-[var(--c-text-main)] text-6xl">50</p>
+            </div>
+            <div>
+              <p class="t-meta mb-2">Estimaciones</p>
+              <p id="estCount" class="t-data text-[var(--c-text-main)] text-6xl">0</p>
+            </div>
+          </div>
+        </div>
+        <div class="layout-split-visual anim-item flex justify-center">
+          <div id="capsule" class="capsule">
+            <div class="capsule-scale">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div id="liquidFill" class="liquid"></div>
+            <div id="pingPongAvg" class="liquid-num">?</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3: Main Rule (Quote) -->
+    <section class="slide layout-quote" data-slide="3" data-type="content">
+      <div class="layout-grid">
+        <div class="content">
+          <div class="anim-item kicker"><span class="t-meta">Regla Principal</span></div>
+          <div class="anim-item t-title mb-8">
+            El Estado del Arte y el Sello de Tiempo
+          </div>
+          <p class="anim-item t-editorial text-[var(--c-text-sub)]">
+            Evaluar a un ingeniero según el estado del arte del momento en que se hizo el diseño, no con conocimientos futuros. El ingeniero no es clarividente.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4: Tribunal (Game Compare) -->
+    <section class="slide layout-compare" data-slide="4" data-type="game" data-game="tribunal">
+      <div class="layout-grid">
+        <div class="col-span-12 flex flex-col justify-center h-full max-w-4xl mx-auto w-full">
+          <div class="anim-item kicker kicker-game"><span class="t-meta">Interacción 02</span></div>
+          <h2 class="t-editorial anim-item mb-16 text-center">
+            ¿Es <span class="text-[var(--c-accent-primary)] font-bold">culpable</span> el ingeniero del Aeropuerto O'Hare por su diseño anticuado frente al Charles de Gaulle?
+          </h2>
+          <div class="tug anim-item">
+            <div class="tug-center"></div>
+            <div class="tug-track" id="tugTrack"></div>
+            <div class="tug-orb" id="tugOrb"></div>
+            <div class="tug-label left">
+              <span id="numCulpable" class="count">-</span>
+              Culpable
+            </div>
+            <div class="tug-label right">
+              <span id="numInocente" class="count">-</span>
+              Inocente
+            </div>
+            <p class="tug-pct" id="tugPct">- / -</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5: Heuristics (Statement) -->
+    <section class="slide layout-statement" data-slide="5" data-type="content">
+      <div class="layout-grid">
+        <div class="content">
+          <div class="anim-item kicker"><span class="t-meta">Heurísticas</span></div>
+          <div class="anim-item t-title">
+            Ayudas plausibles pero falibles. No garantizan solución, reducen tiempo, dependen del contexto y <span class="text-[var(--c-accent-primary)]">pueden contradecirse entre sí.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6: Heuristics Clash (Compare) -->
+    <section class="slide layout-compare" data-slide="6" data-type="game" data-game="heur">
+      <div class="layout-grid">
+        <div class="col-span-12 w-full max-w-5xl mx-auto flex flex-col justify-center h-full">
+          <div class="anim-item kicker kicker-game mb-8"><span class="t-meta">Interacción 03</span></div>
+          <h2 class="t-editorial anim-item mb-12">
+            Problema urgente: tienes que diseñar un puente rápido.<br>¿Qué regla aplicas?
+          </h2>
+          
+          <div class="anim-item grid grid-cols-2 gap-8 w-full">
+            <div id="heurCardA" class="heur-card card-a">
+              <span class="badge">A</span>
+              <p id="heurA" class="big text-[var(--c-accent-ochre)]">-</p>
+              <p class="t-editorial mt-4">Congelar diseño</p>
+            </div>
+            <div id="heurCardB" class="heur-card card-b">
+              <span class="badge">B</span>
+              <p id="heurB" class="big text-[var(--c-accent-warm)]">-</p>
+              <p class="t-editorial mt-4">Iterar continuamente</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7: Risk (Quote) -->
+    <section class="slide layout-quote" data-slide="7" data-type="content">
+      <div class="layout-grid">
+        <div class="content">
+          <div class="anim-item kicker"><span class="t-meta">Límites</span></div>
+          <div class="anim-item t-editorial text-[var(--c-text-sub)] mb-8">Gestión de la ignorancia</div>
+          <div class="anim-item t-title">
+            Los problemas son demasiado complejos para métodos puros. Usamos factores de seguridad y retroalimentación para estabilizar el diseño.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8: Gertie (Game + Split) -->
+    <section class="slide layout-split" data-slide="8" data-type="game" data-game="gertie">
+      <div class="layout-grid">
+        <div class="layout-split-narrative flex flex-col justify-center h-full">
+          <div class="anim-item kicker kicker-game"><span class="t-meta">Interacción 04</span></div>
+          <h2 class="t-title anim-item mb-6">El Misterio<br>de Gertie</h2>
+          <p class="t-editorial anim-item text-[var(--c-text-sub)]">
+            Colapso del Puente Tacoma Narrows.<br>
+            ¿Qué pasa si el salto a lo desconocido es muy grande? Envíen 1 palabra.
+          </p>
+          <div class="mt-8 anim-item">
+            <p class="t-meta mb-2">Palabras</p>
+            <p id="wordCount" class="t-data text-[var(--c-text-main)] text-5xl">0</p>
+          </div>
+          <div id="bubbleField" class="bubble-field anim-item mt-8"></div>
+        </div>
+        <div class="layout-split-visual anim-item h-full flex flex-col justify-center py-12">
+          <div class="media-frame">
+            <video id="tacomaVideo" autoplay loop muted playsinline preload="auto" poster="/media/tacoma.jpg">
+              <source src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Tacoma_Narrows_Bridge_destruction.ogv" type="video/ogg" />
+              <source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f2/Tacoma_Narrows_Bridge_destruction.ogv/Tacoma_Narrows_Bridge_destruction.ogv.480p.vp9.webm" type="video/webm" />
+            </video>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9: Software (Statement) -->
+    <section class="slide layout-statement" data-slide="9" data-type="content">
+      <div class="layout-grid">
+        <div class="content">
+          <div class="anim-item kicker"><span class="t-meta">Era Digital</span></div>
+          <h2 class="t-editorial anim-item text-[var(--c-text-sub)] mb-8">Vigencia del Método</h2>
+          <div class="anim-item t-title">
+            Aunque las herramientas cambiaron, la toma de decisiones bajo incertidumbre es la misma.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10: Paradigm Mapping (Game) -->
+    <section class="slide layout-game" data-slide="10" data-type="game" data-game="quiz">
+      <div class="layout-grid">
+        <div class="col-span-12 flex flex-col justify-center h-full max-w-5xl mx-auto w-full">
+          <div class="anim-item kicker kicker-game self-start mb-8"><span class="t-meta">Interacción 05</span></div>
+          <h2 class="t-editorial anim-item mb-12">Mapeo de Paradigmas: Relaciona la heurística clásica con la tecnología moderna.</h2>
+          
+          <div id="mapContainer" class="map anim-item w-full">
+            <svg id="mapSvg" class="map-svg"></svg>
+            <div id="leftCol" class="map-col"></div>
+            <div id="rightCol" class="map-col"></div>
+          </div>
+          <button id="revealBtn" class="tb-btn tb-btn-primary anim-item mt-12 self-start px-6 py-3">Revelar equivalencia</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11: Conclusion (Cover) -->
+    <section class="slide layout-cover" data-slide="11" data-type="content">
+      <div class="layout-grid">
+        <div class="content">
+          <div class="anim-item kicker"><span class="t-meta">Conclusión</span></div>
+          <h1 class="t-hero anim-item">Ser ingeniero<br>es ser humano</h1>
+          <p class="t-editorial anim-item mt-4 text-[var(--c-text-sub)]">
+            Aplicar heurísticas para lograr el mejor cambio posible.
+          </p>
+        </div>
+        <div class="graphic anim-item">
+          <div class="solid-block text-center border border-[var(--c-surface-bright)]">
+            <span class="text-4xl text-[var(--c-accent-ochre)] block mb-4">?</span>
+            <p class="t-meta">Preguntas y respuestas</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="animations.js"></script>
+  <script src="presenter.js"></script>
+</body>
+</html>

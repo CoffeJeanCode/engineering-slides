@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>El Método de la Ingeniería — Audiencia</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+  
+  <script src="vendor/gsap.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-[var(--c-bg)] text-[var(--c-text-main)] fixed inset-0 overflow-hidden">
+  <div class="ambient-glow"></div>
+
+  <!-- Conn Status -->
+  <div id="connStatus" class="fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 solid-block solid-border text-xs font-bold shadow-lg" style="padding: 0.5rem 1rem;">
+    <span class="w-2 h-2 bg-slate-400 rounded-full inline-block"></span>
+    <span id="connText">Conectando...</span>
+  </div>
+
+  <main id="app" class="relative w-full h-full max-w-md mx-auto">
+
+    <!-- Standby -->
+    <section class="view w-full h-full flex flex-col justify-center p-8" data-view="standby">
+      <div class="flex flex-col items-start w-full">
+        <div class="soft-spinner mb-8"></div>
+        <div class="kicker"><span class="t-meta">Atención</span></div>
+        <p class="t-editorial font-bold mt-4 leading-tight">Mira la pantalla principal.<br>Escucha al expositor.</p>
+        <p class="text-sm text-[var(--c-text-sub)] mt-4">Diapositiva de contenido teórico.</p>
+      </div>
+    </section>
+
+    <!-- G1 -->
+    <section class="view w-full h-full flex flex-col justify-center p-8" data-view="estimate">
+      <div class="flex flex-col w-full">
+        <div class="kicker kicker-game anim-item"><span class="t-meta">Interacción 01</span></div>
+        <p class="anim-item t-editorial font-bold mt-4 leading-tight">¿Cuántas pelotas de ping-pong caben en esta habitación?</p>
+        <p id="estCountdown" class="anim-item mt-4 text-4xl font-black text-[var(--c-accent-ochre)] tabular-nums">50s</p>
+
+        <div id="g1-form" class="view-form anim-item w-full mt-10 flex flex-col gap-4">
+          <input id="estInput" type="number" inputmode="numeric" placeholder="Tu estimación..." class="field-input" />
+          <button id="estBtn" class="btn btn-amber py-4">Enviar Estimación</button>
+        </div>
+        <div id="g1-sent" class="view-sent hidden anim-item w-full mt-8 flex flex-col items-start gap-4 p-6 solid-border bg-[var(--c-surface)]">
+          <p class="font-bold text-[var(--c-accent-ochre)]">Respuesta enviada correctamente.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- G2 -->
+    <section class="view w-full h-full flex flex-col justify-center p-8" data-view="tribunal">
+      <div class="flex flex-col w-full">
+        <div class="kicker kicker-game anim-item"><span class="t-meta">Interacción 02</span></div>
+        <p class="anim-item t-editorial font-bold mt-4 leading-tight">¿Es culpable el ingeniero de O'Hare por su diseño anticuado?</p>
+        
+        <div id="g2-form" class="view-form anim-item w-full mt-10 flex flex-col gap-4">
+          <button id="culpableBtn" class="btn btn-crimson py-5 text-xl">Culpable</button>
+          <button id="inocenteBtn" class="btn btn-olive py-5 text-xl">Inocente</button>
+        </div>
+        <div id="g2-sent" class="view-sent hidden anim-item w-full mt-8 p-6 solid-border bg-[var(--c-surface)]">
+          <p class="font-bold text-[var(--c-accent-ochre)]">Voto registrado.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- G3 -->
+    <section class="view w-full h-full flex flex-col justify-center p-8 overflow-y-auto" data-view="heur">
+      <div class="flex flex-col w-full">
+        <div class="kicker kicker-game anim-item"><span class="t-meta">Interacción 03</span></div>
+        <p class="anim-item t-editorial font-bold mt-4 leading-tight">Tienes que diseñar un puente rápido.<br>¿Qué regla aplicas?</p>
+        
+        <div id="g3-form" class="view-form anim-item w-full mt-10 flex flex-col gap-4">
+          <button id="heurABtn" class="btn btn-amber text-left px-5 py-4 border-l-4 border-[var(--c-text-main)]">A) Congelar diseño</button>
+          <button id="heurBBtn" class="btn btn-coral text-left px-5 py-4 border-t-4 border-[var(--c-text-main)]">B) Iterar siempre</button>
+        </div>
+        <div id="g3-sent" class="view-sent hidden anim-item w-full mt-8 p-6 solid-border bg-[var(--c-surface)]">
+          <p class="font-bold text-[var(--c-accent-ochre)]">Elección guardada.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- G4 -->
+    <section class="view w-full h-full flex flex-col justify-center p-8" data-view="gertie">
+      <div class="flex flex-col w-full">
+        <div class="kicker kicker-game anim-item"><span class="t-meta">Interacción 04</span></div>
+        <p class="anim-item t-editorial font-bold mt-4 leading-tight">¿Qué pasa si el salto a lo desconocido es demasiado grande?</p>
+        <p class="anim-item mt-2 text-sm text-[var(--c-text-sub)]">Envía una sola palabra.</p>
+        
+        <div id="g4-form" class="view-form anim-item w-full mt-10 flex flex-col gap-4">
+          <input id="wordInput" type="text" maxlength="15" placeholder="Una palabra..." class="field-input" />
+          <button id="wordBtn" class="btn btn-amber py-4">Enviar</button>
+        </div>
+        <div id="g4-sent" class="view-sent hidden anim-item w-full mt-8 p-6 solid-border bg-[var(--c-surface)]">
+          <p class="font-bold text-[var(--c-accent-ochre)]">Palabra enviada.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- G5 -->
+    <section class="view w-full h-full flex flex-col justify-center p-8 overflow-y-auto" data-view="quiz">
+      <div class="flex flex-col w-full pb-8">
+        <div class="kicker kicker-game anim-item"><span class="t-meta">Interacción 05</span></div>
+        <p class="anim-item text-lg font-bold mt-4 text-[var(--c-text-sub)] leading-tight">Relaciona la heurística clásica con la tecnología moderna</p>
+        <p id="quizQuestion" class="anim-item t-editorial font-bold mt-2 text-[var(--c-accent-ochre)] leading-tight">...</p>
+        
+        <div id="g5-form" class="view-form anim-item w-full mt-8 flex flex-col gap-3">
+          <div id="quizOptions" class="flex flex-col gap-3"></div>
+        </div>
+        <div id="g5-sent" class="view-sent hidden anim-item w-full mt-8 p-6 solid-border bg-[var(--c-surface)]">
+          <p class="font-bold text-[var(--c-accent-ochre)]">Respuesta enviada.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="animations.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>

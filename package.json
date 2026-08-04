@@ -1,0 +1,22 @@
+{
+  "name": "metodo-ingenieria-live",
+  "version": "1.0.0",
+  "description": "Presentacion interactiva en tiempo real: El Metodo de la Ingenieria (Socket.io)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "tunnel": "node tunnel-start.js"
+  },
+  "keywords": [
+    "socket.io",
+    "presentacion",
+    "interactiva",
+    "audience"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  }
+}
