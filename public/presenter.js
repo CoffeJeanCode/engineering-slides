@@ -80,12 +80,53 @@ function renderEstimate(s) {
   document.getElementById('estCount').textContent = ests.length;
   document.getElementById('timerNum').textContent = s.data.estimateOpen ? s.timeLeft : '0';
 
-  // Una pelota por estimación: al cambiar las estimaciones, caen/rebotan en la cápsula
-  const pit = getPingPong();
-  pit.setCount(ests.length);
-  if (ests.length && !pit.running) pit.start();
-
   countUp(document.getElementById('pingPongAvg'), avg, 0.8);
+
+  if (!s.data.estimateOpen && !pingPongModalShown) {
+    pingPongModalShown = true;
+    showPingPongModal();
+  }
+}
+
+let pingPongModalShown = false;
+
+function showPingPongModal() {
+  const modal = document.getElementById('pingPongModal');
+  modal.classList.remove('hidden');
+  gsap.fromTo(modal, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, ease: 'power2.out' });
+  renderPingPongFormulas();
+}
+
+function hidePingPongModal() {
+  const modal = document.getElementById('pingPongModal');
+  gsap.to(modal, {
+    autoAlpha: 0, duration: 0.3, ease: 'power2.in',
+    onComplete: () => modal.classList.add('hidden'),
+  });
+}
+
+document.getElementById('formulaClose').addEventListener('click', hidePingPongModal);
+document.querySelector('.formula-modal-backdrop').addEventListener('click', hidePingPongModal);
+
+function renderPingPongFormulas() {
+  const texGeneral = String.raw`N \approx \frac{L \times A \times H \times f}{\frac{4}{3}\pi r^3}`;
+  const texRapida = String.raw`N \approx L \times A \times H \times 18{,}000`;
+  const texEjemplo = String.raw`N \approx 8 \times 6 \times 3 \times 18{,}000 = 2{,}592{,}000`;
+
+  function doRender() {
+    if (typeof katex === 'undefined') return;
+    katex.render(texGeneral, document.getElementById('formulaGeneral'), { displayMode: true, throwOnError: false });
+    katex.render(texRapida, document.getElementById('formulaRapida'), { displayMode: true, throwOnError: false });
+    katex.render(texEjemplo, document.getElementById('formulaExample'), { displayMode: true, throwOnError: false });
+  }
+
+  if (typeof katex !== 'undefined') {
+    doRender();
+  } else {
+    const check = setInterval(() => {
+      if (typeof katex !== 'undefined') { clearInterval(check); doRender(); }
+    }, 100);
+  }
 }
 
 /* ============================================================= */
@@ -149,6 +190,17 @@ let rightNodes = [];
 let quizItems = [];
 let quizBuilt = false;
 let lastRevealed = 0;
+let shuffledRightMap = [];
+let lastDrawnVotePaths = 0;
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 function buildQuizNodes(s) {
   const leftCol = document.getElementById('leftCol');
@@ -158,6 +210,14 @@ function buildQuizNodes(s) {
   document.getElementById('mapSvg').innerHTML = '';
   leftNodes = [];
   rightNodes = [];
+  shuffledRightMap = [];
+
+  const indices = [0, 1, 2];
+  const shuffled = shuffleArray(indices);
+  shuffledRightMap = new Array(3);
+  shuffled.forEach((originalIdx, rightIdx) => {
+    shuffledRightMap[originalIdx] = rightIdx;
+  });
 
   s.quiz.forEach((item, i) => {
     const l = document.createElement('div');
@@ -172,9 +232,9 @@ function buildQuizNodes(s) {
     leftCol.appendChild(l);
     leftNodes.push(l);
 
-    // Los nodos de la derecha son las tecnologías (opciones)
     if (i === 0) {
-      item.options.forEach((opt, j) => {
+      shuffled.forEach(originalIdx => {
+        const opt = item.options[originalIdx];
         const r = document.createElement('div');
         r.className = 'node node-right glass';
         r.innerHTML = `<span>${opt}</span><span class="meter"><span class="meter-fill"></span></span>`;
@@ -186,6 +246,8 @@ function buildQuizNodes(s) {
 
   quizItems = s.quiz;
   quizBuilt = true;
+  lastDrawnVotePaths = 0;
+  lastRevealed = 0;
 }
 
 function updateQuizChips(s) {
@@ -253,6 +315,26 @@ function revealMatch(s, leftNode, rightNode, qIdx, optIdx) {
   flashNode(rightNode);
 }
 
+function drawVotePaths(s) {
+  const answers = s.data.quizAnswers;
+  if (answers.length <= lastDrawnVotePaths) return;
+
+  const svg = document.getElementById('mapSvg');
+  const container = document.getElementById('mapContainer');
+
+  for (let i = lastDrawnVotePaths; i < answers.length; i++) {
+    const a = answers[i];
+    const leftNode = leftNodes[a.q];
+    const originalOptIdx = ['A', 'B', 'C'].indexOf(a.option);
+    const rightIdx = shuffledRightMap[originalOptIdx];
+    const rightNode = rightNodes[rightIdx];
+    if (leftNode && rightNode) {
+      drawVotePath(svg, container, leftNode, rightNode, a.option, i);
+    }
+  }
+  lastDrawnVotePaths = answers.length;
+}
+
 function renderQuiz(s) {
   const revealed = s.data.revealedQuiz;
 
@@ -263,12 +345,14 @@ function renderQuiz(s) {
   }
 
   updateQuizChips(s);
+  drawVotePaths(s);
 
   // Revelado paso a paso: el cable "descubre" el camino y enciende la equivalencia
   const svg = document.getElementById('mapSvg');
   const container = document.getElementById('mapContainer');
   for (let i = lastRevealed; i < revealed; i++) {
-    const idx = ['A', 'B', 'C'].indexOf(quizItems[i].answer);
+    const originalOptIdx = ['A', 'B', 'C'].indexOf(quizItems[i].answer);
+    const idx = shuffledRightMap[originalOptIdx];
     leftNodes[i].classList.add('matched-left');
     rightNodes[idx].classList.add('matched-right');
     drawCable(svg, container, leftNodes[i], rightNodes[idx], () => revealMatch(s, leftNodes[i], rightNodes[idx], i, idx));
@@ -300,13 +384,18 @@ function renderAll(s) {
   nextBtn.disabled = s.slide >= s.slides.length - 1;
   resetBtn.disabled = !meta || meta.type !== 'game';
 
-  if (s.slide !== prevSlide) manager.goTo(s.slide);
+  if (s.slide !== prevSlide) {
+    manager.goTo(s.slide);
+    if (prevSlide === 2) hidePingPongModal();
+  }
 
   userCountEl.textContent = s.users;
   countUp(document.getElementById('userCountBig'), s.users, 0.7);
 
-  if (s.slide === 2) renderEstimate(s);
-  else if (pingPong && pingPong.running) pingPong.stop();
+  if (s.slide === 2) {
+    if (s.data.estimateOpen) pingPongModalShown = false;
+    renderEstimate(s);
+  }
   if (s.slide === 4) renderTribunal(s);
   if (s.slide === 6) renderHeur(s);
   if (s.slide === 8) renderGertie(s);

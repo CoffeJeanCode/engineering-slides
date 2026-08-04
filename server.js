@@ -62,7 +62,7 @@ const QUIZ = [
   },
 ];
 
-const ESTIMATE_SECONDS = 50;
+const ESTIMATE_SECONDS = 30;
 const MAX_ESTIMATE = 100000;
 
 const state = {

@@ -18,6 +18,11 @@
   <script src="vendor/gsap.min.js"></script>
   <script src="vendor/qrcode.min.js"></script>
 
+  <!-- KaTeX for LaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+
   <!-- Socket.io -->
   <script src="/socket.io/socket.io.js"></script>
 
@@ -93,12 +98,12 @@
           <div class="anim-item kicker kicker-game"><span class="t-meta">Interacción 01</span></div>
           <h2 class="t-title anim-item mb-6">Reto Ping-Pong</h2>
           <p class="t-editorial anim-item text-[var(--c-text-sub)]">
-            Tienen 50 segundos. ¿Cuántas pelotas de ping-pong caben en esta habitación?
+            Tienen 30 segundos. ¿Cuántas pelotas de ping-pong caben en esta habitación?
           </p>
           <div class="anim-item flex gap-8 mt-12">
             <div>
               <p class="t-meta mb-2">Tiempo</p>
-              <p id="timerNum" class="t-data text-[var(--c-text-main)] text-6xl">50</p>
+              <p id="timerNum" class="t-data text-[var(--c-text-main)] text-6xl">30</p>
             </div>
             <div>
               <p class="t-meta mb-2">Estimaciones</p>
@@ -286,6 +291,50 @@
     </section>
 
   </main>
+
+  <!-- Modal Fórmula Ping-Pong -->
+  <div id="pingPongModal" class="formula-modal hidden">
+    <div class="formula-modal-backdrop"></div>
+    <div class="formula-modal-content">
+      <button id="formulaClose" class="formula-modal-close">&times;</button>
+
+      <div class="formula-modal-header">
+        <span class="kicker kicker-game"><span class="t-meta">Solución</span></span>
+        <h2 class="formula-modal-title">¿Cuántas son necesarias?</h2>
+      </div>
+
+      <div class="formula-modal-body">
+        <div class="formula-row">
+          <p class="formula-label">Fórmula general</p>
+          <div id="formulaGeneral" class="formula-tex"></div>
+          <div class="formula-legend">
+            <span><b>N</b> = número de pelotas</span>
+            <span><b>L × A × H</b> = volumen de la habitación (m³)</span>
+            <span><b>f</b> = factor de empaquetamiento (~0.60–0.64)</span>
+            <span><b>⁴⁄₃ π r³</b> = volumen de una esfera</span>
+          </div>
+        </div>
+
+        <div class="formula-row formula-highlight">
+          <p class="formula-label">Fórmula rápida — pelotas de 4 cm, f = 60%</p>
+          <div id="formulaRapida" class="formula-tex"></div>
+          <div class="formula-legend">
+            <span>Solo multiplica las dimensiones en metros por <b>18 000</b></span>
+          </div>
+        </div>
+
+        <div class="formula-row formula-example">
+          <p class="formula-label">Ejemplo aplicado — habitación 8 m × 6 m × 3 m</p>
+          <div id="formulaExample" class="formula-tex"></div>
+          <div class="formula-result">
+            <span class="formula-result-label">Resultado</span>
+            <span id="formulaResultNum" class="formula-result-number">2 592 000</span>
+            <span class="formula-result-unit">pelotas</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="animations.js"></script>
   <script src="presenter.js"></script>

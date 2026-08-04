@@ -389,6 +389,88 @@ function drawEnergyLine(svg, container, fromEl, toEl) {
   drawCable(svg, container, fromEl, toEl);
 }
 
+const VOTE_COLORS = {
+  A: '#C58B4C',
+  B: '#B75738',
+  C: '#9D1E2B',
+};
+
+function drawVotePath(svg, container, fromEl, toEl, option, index) {
+  const cRect = container.getBoundingClientRect();
+  const fRect = fromEl.getBoundingClientRect();
+  const tRect = toEl.getBoundingClientRect();
+
+  const x1 = fRect.right - cRect.left;
+  const y1 = fRect.top + fRect.height / 2 - cRect.top;
+  const x2 = tRect.left - cRect.left;
+  const y2 = tRect.top + tRect.height / 2 - cRect.top;
+
+  svg.setAttribute('viewBox', `0 0 ${cRect.width} ${cRect.height}`);
+
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const dist = Math.hypot(dx, dy);
+  const perpX = -dy / dist;
+  const perpY = dx / dist;
+
+  const segments = 4;
+  const amplitude = 6 + (index % 3) * 2;
+  const seed = index * 137.5;
+  const points = [{ x: x1, y: y1 }];
+
+  for (let i = 1; i < segments; i++) {
+    const t = i / segments;
+    const px = x1 + dx * t;
+    const py = y1 + dy * t;
+    const wave = Math.sin(seed + i * 1.8) * amplitude;
+    points.push({ x: px + perpX * wave, y: py + perpY * wave });
+  }
+  points.push({ x: x2, y: y2 });
+
+  let d = `M${points[0].x} ${points[0].y}`;
+  for (let i = 1; i < points.length - 1; i++) {
+    const prev = points[i - 1];
+    const curr = points[i];
+    const next = points[i + 1];
+    const cpx1 = prev.x + (curr.x - prev.x) * 0.5;
+    const cpy1 = prev.y + (curr.y - prev.y) * 0.5;
+    const cpx2 = curr.x - (next.x - prev.x) * 0.15;
+    const cpy2 = curr.y - (next.y - prev.y) * 0.15;
+    const cpx3 = curr.x + (next.x - curr.x) * 0.15;
+    const cpy3 = curr.y + (next.y - curr.y) * 0.15;
+    const cpx4 = next.x - (next.x - curr.x) * 0.5;
+    const cpy4 = next.y - (next.y - curr.y) * 0.5;
+    d += ` C${cpx1} ${cpy1} ${cpx2} ${cpy2} ${curr.x} ${curr.y}`;
+  }
+  const last = points[points.length - 1];
+  const prev = points[points.length - 2];
+  d += ` C${prev.x + (last.x - prev.x) * 0.5} ${prev.y + (last.y - prev.y) * 0.5} ${last.x} ${last.y} ${last.x} ${last.y}`;
+
+  const path = document.createElementNS(SVG_NS, 'path');
+  path.setAttribute('d', d);
+  path.classList.add('vote-path');
+  path.setAttribute('stroke', VOTE_COLORS[option] || VOTE_COLORS.A);
+  path.setAttribute('stroke-width', '1.5');
+  path.setAttribute('fill', 'none');
+  path.setAttribute('stroke-linecap', 'round');
+  path.setAttribute('stroke-linejoin', 'round');
+  path.setAttribute('stroke-dasharray', '6 4');
+  path.setAttribute('opacity', '0');
+
+  svg.appendChild(path);
+
+  const len = Math.max(1, path.getTotalLength());
+  path.style.strokeDasharray = `6 4`;
+  path.style.strokeDashoffset = String(len);
+
+  gsap.to(path, { opacity: 0.5, duration: 0.3 });
+  gsap.to(path, {
+    strokeDashoffset: 0,
+    duration: 0.8,
+    ease: 'power2.out',
+  });
+}
+
 function revealRow(row) {
   const cell = row.querySelector('.reveal-cell');
   if (!cell) return;
@@ -417,5 +499,7 @@ window.impactCards = impactCards;
 window.spawnBubble = spawnBubble;
 window.drawEnergyLine = drawEnergyLine;
 window.drawCable = drawCable;
+window.drawVotePath = drawVotePath;
+window.VOTE_COLORS = VOTE_COLORS;
 window.revealRow = revealRow;
 window.sendFeedback = sendFeedback;

@@ -261,6 +261,73 @@ h1, h2, h3, h4, p { margin: 0; }
   z-index: 2;
 }
 
+/* Ping Pong Formula Modal */
+.formula-modal {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+}
+.formula-modal-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(12, 5, 10, 0.88);
+  backdrop-filter: blur(8px);
+}
+.formula-modal-content {
+  position: relative; z-index: 1;
+  width: 90vw; max-width: 1100px;
+  max-height: 90vh; overflow-y: auto;
+  background: var(--c-bg);
+  border: 1px solid var(--c-surface-bright);
+  padding: 3rem 3.5rem;
+}
+.formula-modal-close {
+  position: absolute; top: 1.2rem; right: 1.5rem;
+  background: none; border: none; color: var(--c-text-sub);
+  font-size: 2.5rem; cursor: pointer; line-height: 1;
+}
+.formula-modal-close:hover { color: var(--c-text-main); }
+.formula-modal-header { margin-bottom: 2.5rem; }
+.formula-modal-title {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 800; color: var(--c-accent-ochre);
+  margin-top: 0.5rem;
+}
+.formula-row { margin-bottom: 2.5rem; }
+.formula-row:last-child { margin-bottom: 0; }
+.formula-label {
+  font-size: 1rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--c-text-sub); margin-bottom: 1rem;
+}
+.formula-tex { text-align: center; padding: 0.5rem 0; }
+.formula-tex .katex { font-size: 2.8em; }
+.formula-highlight .formula-tex .katex { font-size: 3.2em; }
+.formula-legend {
+  display: flex; flex-wrap: wrap; gap: 0.6rem 2rem;
+  font-size: 1rem; color: var(--c-text-sub); margin-top: 0.75rem;
+}
+.formula-legend b { color: var(--c-accent-ochre); }
+.formula-example {
+  background: var(--c-surface);
+  border: 1px solid var(--c-surface-bright);
+  padding: 2rem 2.5rem;
+}
+.formula-result {
+  display: flex; align-items: baseline; gap: 0.75rem;
+  margin-top: 1.5rem; padding-top: 1.5rem;
+  border-top: 1px solid var(--c-surface-bright);
+}
+.formula-result-label {
+  font-size: 0.85rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--c-text-sub);
+}
+.formula-result-number {
+  font-size: clamp(3rem, 8vw, 6rem); font-weight: 900;
+  color: var(--c-accent-ochre); font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.formula-result-unit {
+  font-size: 1.2rem; font-weight: 600; color: var(--c-text-sub);
+}
+
 /* Tribunal */
 .tug {
   position: relative; width: 100%; height: 100px;
@@ -289,7 +356,7 @@ h1, h2, h3, h4, p { margin: 0; }
   position: relative;
 }
 .heur-card.card-a { border-left: 4px solid var(--c-accent-ochre); }
-.heur-card.card-b { border-top: 4px solid var(--c-accent-warm); background: var(--c-surface); } /* Different composition! */
+.heur-card.card-b { border-left: 4px solid var(--c-accent-warm); }
 .heur-card .badge {
   display: inline-block; padding: 4px 12px; background: var(--c-surface-bright);
   font-weight: 800; margin-bottom: 1rem;
@@ -329,7 +396,7 @@ h1, h2, h3, h4, p { margin: 0; }
 }
 
 /* Map paradigm */
-.map { position: relative; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+.map { position: relative; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8rem; align-items: center; }
 .map-col { display: flex; flex-direction: column; gap: 1.5rem; z-index: 2; }
 .node {
   padding: 1rem; border: 1px solid var(--c-surface-bright);
@@ -347,6 +414,8 @@ h1, h2, h3, h4, p { margin: 0; }
 .cable-core { fill: none; stroke: var(--c-accent-ochre); stroke-width: 2; }
 .cable-core.live { stroke-dasharray: 4 8; animation: dashFlow 1s linear infinite; }
 @keyframes dashFlow { to { stroke-dashoffset: -12; } }
+
+.vote-path { pointer-events: none; }
 
 /* ============================================================= */
 /*  Client UI                                                    */
