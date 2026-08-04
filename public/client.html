@@ -113,8 +113,14 @@
         <div class="kicker kicker-game anim-item"><span class="t-meta">Interacción 04</span></div>
         <p class="anim-item t-editorial font-bold mt-4 leading-tight">¿Qué pasa si el salto a lo desconocido es demasiado grande?</p>
         <p class="anim-item mt-2 text-sm text-[var(--c-text-sub)]">Envía una sola palabra.</p>
-        
-        <div id="g4-form" class="view-form anim-item w-full mt-10 flex flex-col gap-4">
+
+        <div class="anim-item w-full mt-6 rounded-xl overflow-hidden solid-border" style="border: 1px solid var(--c-surface-bright); background:#000;">
+          <video id="tacomaClientVideo" autoplay muted loop playsinline controls preload="auto" poster="/media/tacoma.jpg" class="w-full aspect-video object-cover block" style="opacity:0.9;">
+            <source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f2/Tacoma_Narrows_Bridge_destruction.ogv/Tacoma_Narrows_Bridge_destruction.ogv.480p.vp9.webm" type="video/webm" />
+          </video>
+        </div>
+
+        <div id="g4-form" class="view-form anim-item w-full mt-8 flex flex-col gap-4">
           <input id="wordInput" type="text" maxlength="15" placeholder="Una palabra..." class="field-input" />
           <button id="wordBtn" class="btn btn-amber py-4">Enviar</button>
         </div>

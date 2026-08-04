@@ -95,6 +95,11 @@ function onViewEnter(name) {
     document.getElementById('wordInput').value = '';
     document.getElementById('wordInput').disabled = false;
     document.getElementById('wordBtn').disabled = false;
+    const v = document.getElementById('tacomaClientVideo');
+    if (v) { v.muted = true; v.play().catch(() => {}); }
+  } else {
+    const v = document.getElementById('tacomaClientVideo');
+    if (v) v.pause();
   }
   if (name === 'quiz') {
     renderQuizQuestion();

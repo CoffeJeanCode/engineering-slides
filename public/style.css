@@ -273,11 +273,11 @@ h1, h2, h3, h4, p { margin: 0; }
 }
 .formula-modal-content {
   position: relative; z-index: 1;
-  width: 95vw; max-width: 1400px;
+  width: 95vw; max-width: 1000px;
   max-height: 95vh; overflow: hidden;
   background: var(--c-bg);
   border: 1px solid var(--c-surface-bright);
-  padding: 3rem 4rem;
+  padding: 2rem 2.5rem;
 }
 .formula-modal-close {
   position: absolute; top: 1.2rem; right: 1.5rem;
@@ -297,9 +297,9 @@ h1, h2, h3, h4, p { margin: 0; }
   font-size: 0.85rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.12em; color: var(--c-text-sub); margin-bottom: 0.75rem;
 }
-.formula-tex { text-align: center; padding: 0.25rem 0; }
-.formula-tex .katex { font-size: 2.2em; }
-.formula-highlight .formula-tex .katex { font-size: 2.5em; }
+.formula-tex { text-align: center; padding: 0.25rem 0; overflow-x: auto; }
+.formula-tex .katex { font-size: 1.7em; }
+.formula-highlight .formula-tex .katex { font-size: 2em; }
 .formula-example {
   background: var(--c-surface);
   border: 1px solid var(--c-surface-bright);
@@ -309,8 +309,8 @@ h1, h2, h3, h4, p { margin: 0; }
 /* Two-column layout */
 .formula-columns {
   display: grid;
-  grid-template-columns: 1fr 280px;
-  gap: 3rem;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 1.5rem;
   align-items: start;
 }
 .formula-col-formulas {
